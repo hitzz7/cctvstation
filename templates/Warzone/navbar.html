@@ -85,13 +85,13 @@
             All Categories
         </button>
 
-        <nav class="navbar-links">
+        <!-- <nav class="navbar-links">
             {% for category in navbar_categories %}
             <a href="{% url 'store:product' %}?category={{ category.id }}">{{ category.name }}</a>
             {% endfor %}
             <a href="{% url 'store:gallery' %}">Gallery</a>
             <a href="{% url 'store:contact' %}">Contact</a>
-        </nav>
+        </nav> -->
 
         <div class="navbar-promos">
             <a href="{% url 'store:product' %}" class="navbar-promo-btn">New Arrivals</a>
