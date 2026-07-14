@@ -338,7 +338,7 @@
     const mainImage = document.getElementById('mainImage');
     const previewLabel = document.getElementById('previewLabel');
     const thumbs = document.querySelectorAll('.product-detail__thumb');
-    const basePrice = {{ product.price }};
+    const basePrice = parseFloat('{{ product.price }}') || 0;
     const packageTotal = document.getElementById('packageTotal');
     const totalPriceEl = document.getElementById('totalPrice');
     const unitPriceEl = document.getElementById('unitPrice');
@@ -526,9 +526,15 @@
         const total = (basePrice * qty) + selectedOptions.dvr + selectedOptions.hdd + selectedOptions.smps
             + selectedOptions.monitor + wireCost;
 
-        unitPriceEl.textContent = 'Rs. ' + unitTotal.toLocaleString();
-        totalPriceEl.textContent = 'Rs. ' + total.toLocaleString();
-        totalQtyEl.textContent = qty;
+        if (unitPriceEl) {
+            unitPriceEl.textContent = 'Rs. ' + unitTotal.toLocaleString();
+        }
+        if (totalPriceEl) {
+            totalPriceEl.textContent = 'Rs. ' + total.toLocaleString();
+        }
+        if (totalQtyEl) {
+            totalQtyEl.textContent = qty;
+        }
     }
 
     updateDvrOptions(1);

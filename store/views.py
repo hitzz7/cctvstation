@@ -295,40 +295,46 @@ def get_or_create_cart(request):
 
 def add_to_cart(request):
     if request.method == 'POST':
-        product_id = request.POST.get('product_id')
-        quantity = int(request.POST.get('quantity', 1))
-        dvr_id = request.POST.get('dvr')
-        hdd_id = request.POST.get('hdd')
-        smps_id = request.POST.get('smps')
-        monitor_id = request.POST.get('monitor')
-        wire_id = request.POST.get('wire')
+        try:
+            product_id = request.POST.get('product_id')
+            quantity = int(request.POST.get('quantity', 1))
+            dvr_id = request.POST.get('dvr')
+            hdd_id = request.POST.get('hdd')
+            smps_id = request.POST.get('smps')
+            monitor_id = request.POST.get('monitor')
+            wire_id = request.POST.get('wire')
 
-        product = get_object_or_404(Product, id=product_id)
-        cart = get_or_create_cart(request)
+            if not product_id:
+                return JsonResponse({'success': False, 'message': 'Product ID is required'})
 
-        # Check if item already exists in cart
-        cart_item = cart.items.filter(product=product).first()
+            product = get_object_or_404(Product, id=product_id)
+            cart = get_or_create_cart(request)
 
-        if cart_item:
-            cart_item.quantity += quantity
-            cart_item.save()
-        else:
-            cart_item = CartItem.objects.create(
-                cart=cart,
-                product=product,
-                quantity=quantity,
-                dvr_id=dvr_id if dvr_id else None,
-                hdd_id=hdd_id if hdd_id else None,
-                smps_id=smps_id if smps_id else None,
-                monitor_id=monitor_id if monitor_id else None,
-                wire_id=wire_id if wire_id else None
-            )
+            # Check if item already exists in cart
+            cart_item = cart.items.filter(product=product).first()
 
-        return JsonResponse({
-            'success': True,
-            'cart_count': cart.get_total_quantity(),
-            'message': 'Item added to cart'
-        })
+            if cart_item:
+                cart_item.quantity += quantity
+                cart_item.save()
+            else:
+                cart_item = CartItem.objects.create(
+                    cart=cart,
+                    product=product,
+                    quantity=quantity,
+                    dvr_id=dvr_id if dvr_id else None,
+                    hdd_id=hdd_id if hdd_id else None,
+                    smps_id=smps_id if smps_id else None,
+                    monitor_id=monitor_id if monitor_id else None,
+                    wire_id=wire_id if wire_id else None
+                )
+
+            return JsonResponse({
+                'success': True,
+                'cart_count': cart.get_total_quantity(),
+                'message': 'Item added to cart'
+            })
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)})
 
     return JsonResponse({'success': False, 'message': 'Invalid request'})
 
