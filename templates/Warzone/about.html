@@ -1,0 +1,134 @@
+{% extends './navbar.html' %}
+{% load static %}
+
+{% block title %}About Us{% endblock %}
+
+{% block content %}
+<style>
+    .about-section {
+        padding: 40px;
+        text-align: center;
+        margin-top:60px;
+        
+    }
+    
+    
+    .about-section h3 {
+        font-size: 72px;
+        font-family:"Calton",sans-serif;
+        margin-bottom: 20px;
+    }
+     h4 {
+        font-size: 52px;
+        font-family:"Calton",sans-serif;
+        margin:15px;
+        text-align:center;
+    }
+    
+    .about-content {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width:1400px;
+        gap: 100px;
+        margin-top: 100px;
+    }
+    
+    .about-content .image img {
+        width: 100%;
+        height:auto;
+        object-fit:cover;
+        border-radius: 8px;
+    }
+    
+    .about-content .text {
+        max-width: 600px;
+        text-align: left;
+        font-size: 26px;
+        font-family: 'Itronz', sans-serif;
+        line-height: 1.6;
+        margin-bottom:100px;
+    }
+    
+
+    
+</style>
+<div class="about-section">
+    <h2>About Us</h2>
+    
+    <div class="about-content">
+        <div class="image">
+            <img src="{% static 'instal.jpg' %}" alt="About Us">
+        </div>
+        <div class="text">
+            <h3>who are itronz?</h3>
+            <p>
+                Our mission is to deliver exceptional quality and ensure customer satisfaction. With a dedicated team and years of experience, we strive to make a positive impact in the industry.
+            </p>
+        </div>
+    </div>
+</div>
+<section class="partners">
+  <h2>Our Partners</h2>
+  <div class="partners-logos">
+    <img src="{% static 'tin.png' %}" alt="Partner 1">
+    <img src="{% static 'hk.png' %}" alt="Partner 2">
+    <img src="{% static 'sony.png' %}" alt="Partner 3">
+    <img src="{% static 'hk.png' %}" alt="Partner 4">
+    
+  </div>
+</section>
+
+<div class="testimonial-section">
+    <h2>What Our Clients Say</h2>
+    <div class="testimonial-container">
+        <div class="testimonial-card">
+            <img src="{% static 'gand.png' %}" alt="Client Logo" class="client-logo">
+            <p>"Itronz provided exceptional service and exceeded our expectations. Their dedication and attention to detail were remarkable."</p>
+            <h4>John Doe</h4>
+            <div class="client-title">CEO, TechCo</div>
+        </div>
+        <div class="testimonial-card">
+            <img src="{% static 'bb.png' %}" alt="Client Logo" class="client-logo">
+            <p>"The team at Itronz is professional, skilled, and highly dependable. We've seen a significant improvement in our operations thanks to their efforts."</p>
+            <h4>Jane Smith</h4>
+            <div class="client-title">Founder, WebSolutions</div>
+        </div>
+        <div class="testimonial-card">
+            <img src="{% static 'client_logo3.jpg' %}" alt="Client Logo" class="client-logo">
+            <p>"Itronz went above and beyond in delivering top-quality products. We highly recommend their services to anyone looking for reliable results."</p>
+            <h4>Michael Brown</h4>
+            <div class="client-title">Managing Director, Innovate Ltd.</div>
+        </div>
+    </div>
+</div>
+<section class="stats-section">
+  <div class="stats-wrapper">
+
+    <div class="stat-box">
+      <img src="{% static 'verification.png' %}" alt="Projects Completed">
+      <div class="stat-content">
+        <h3 class="counter" data-target="+250">0</h3>
+        <p>Projects Completed</p>
+      </div>
+    </div>
+
+    <div class="stat-box">
+      <img src="{% static 'people.png' %}" alt="Team Members">
+      <div class="stat-content">
+        <h3 class="counter" data-target="20">0</h3>
+        <p>Team Members</p>
+      </div>
+    </div>
+
+    <div class="stat-box">
+      <img src="{% static 'quality.png' %}" alt="Years on Market">
+      <div class="stat-content">
+        <h3 class="counter" data-target="10">0</h3>
+        <p>Years on Market</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+{% endblock %}

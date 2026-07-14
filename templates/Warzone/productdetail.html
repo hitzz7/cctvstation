@@ -1,0 +1,679 @@
+{% extends './navbar.html' %}
+{% load static %}
+
+{% block title %}{{ product.title }}{% endblock %}
+
+{% block content %}
+
+<section class="product-detail">
+    <div class="container">
+        <nav class="product-detail__breadcrumb">
+            <a href="{% url 'store:home' %}">Home</a>
+            <span>/</span>
+            <a href="{% url 'store:product' %}">Products</a>
+            <span>/</span>
+            <span>{{ product.title }}</span>
+        </nav>
+
+        <div class="product-detail__layout">
+            <div class="product-detail__gallery">
+                <div class="product-detail__main-img">
+                    {% for image in images|slice:":1" %}
+                        <img id="mainImage" class="product-detail__main-photo" src="{{ image.image.url }}" alt="{{ product.title }}" data-default-src="{{ image.image.url }}">
+                    {% empty %}
+                        <div class="product-card__placeholder" id="mainImagePlaceholder">
+                            <i class="fa-solid fa-camera"></i>
+                        </div>
+                    {% endfor %}
+                    {% if product.discount_percent %}
+                        <span class="product-card__badge product-card__badge--discount">-{{ product.discount_percent }}%</span>
+                    {% endif %}
+                    <span class="product-detail__preview-label" id="previewLabel" hidden>Preview</span>
+                </div>
+
+                {% if images %}
+                <div class="product-detail__thumbs">
+                    {% for image in images %}
+                        <button type="button" class="product-detail__thumb{% if image.is_feature %} active{% endif %}" data-src="{{ image.image.url }}">
+                            <img src="{{ image.image.url }}" alt="{{ product.title }}">
+                        </button>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="product-detail__info">
+                <h1 class="product-detail__title">{{ product.title }}</h1>
+
+                {% if product.category %}
+                    <p class="product-detail__category">{{ product.category.name }}</p>
+                {% endif %}
+                {% if product.product_type %}
+                    <p class="product-detail__type"><strong>Type:</strong> {{ product.product_type.name }}</p>
+                {% endif %}
+                <div class="product-detail__prices">
+                    {% if product.actual_price and product.actual_price > product.price %}
+                        <span class="product-detail__actual-price">Rs. {{ product.actual_price }}</span>
+                        <span class="product-detail__price">Rs. {{ product.price }}</span>
+                        <span class="product-detail__save">Save {{ product.discount_percent }}%</span>
+                    {% else %}
+                        <span class="product-detail__price">Rs. {{ product.price }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="product-detail__stock">
+                    {% if product.stock == 0 %}
+                        <span class="product-detail__stock-badge product-detail__stock-badge--out">Out of Stock</span>
+                    {% elif product.stock <= 5 %}
+                        <span class="product-detail__stock-badge product-detail__stock-badge--low">Only {{ product.stock }} left in stock</span>
+                    {% else %}
+                        <span class="product-detail__stock-badge product-detail__stock-badge--in">
+                            <i class="fa-solid fa-circle-check"></i> In Stock
+                        </span>
+                    {% endif %}
+                </div>
+
+                {% if product.highlights.all %}
+                    <ul class="product-detail__highlights">
+                        {% for highlight in product.highlights.all %}
+                            <li><i class="fa-solid fa-bolt"></i> {{ highlight.text }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+
+                {% if product.description %}
+                    <div class="product-detail__description">
+                        <h3>Description</h3>
+                        <p class="product-detail__desc-text" id="descText">{{ product.description }}</p>
+                        <button type="button" class="product-detail__view-more" id="descViewMore" onclick="toggleDescription()">View More</button>
+                    </div>
+                {% endif %}
+
+                
+
+                <div class="product-detail__quantity">
+                    <span class="product-detail__quantity-label">Quantity</span>
+                    <div class="product-detail__quantity-control">
+                        <button type="button" class="product-detail__qty-btn" id="qtyMinus" aria-label="Decrease quantity" {% if product.stock == 0 %}disabled{% endif %}>−</button>
+                        <input type="number" id="quantityInput" class="product-detail__qty-input" value="1" min="1" max="{% if product.stock > 0 %}{{ product.stock }}{% else %}1{% endif %}" {% if product.stock == 0 %}disabled{% endif %}>
+                        <button type="button" class="product-detail__qty-btn" id="qtyPlus" aria-label="Increase quantity" {% if product.stock == 0 %}disabled{% endif %}>+</button>
+                    </div>
+                    {% if product.stock > 0 %}
+                        <span class="product-detail__qty-hint">{{ product.stock }} available</span>
+                    {% endif %}
+                </div>
+
+                {% for group in option_groups %}
+                    <div class="product-detail__options"{% if group.key == 'dvr' %} id="dvrOptions"{% endif %}>
+                        <h3>
+                            {{ group.label }}
+                            {% if group.key == 'dvr' %}
+                                <span class="product-detail__dvr-hint" id="dvrHint"></span>
+                            {% endif %}
+                            {% if group.key == 'wire' %}
+                                <span class="product-detail__wire-hint">25m per camera</span>
+                            {% endif %}
+                        </h3>
+                        <div class="product-detail__option-group" data-option-group="{{ group.key }}">
+                            {% for item in group.items %}
+                                <button type="button"
+                                        class="product-detail__option{% if item.image %} product-detail__option--has-img{% endif %}"
+                                        data-id="{{ item.id }}"
+                                        data-price="{{ item.price|default_if_none:0 }}"
+                                        {% if group.key == 'dvr' and item.channels %}data-channels="{{ item.channels }}"{% endif %}
+                                        {% if item.image %}data-image="{{ item.image.url }}"{% endif %}>
+                                    {% if item.image %}
+                                        <span class="product-detail__option-img-wrap">
+                                            <img class="product-detail__option-img" src="{{ item.image.url }}" alt="{{ item.name }}">
+                                        </span>
+                                    {% endif %}
+                                    <span class="product-detail__option-name">{{ item.name }}</span>
+                                    {% if item.price %}
+                                        {% if group.key == 'wire' %}
+                                            <span class="product-detail__option-price">Rs. {{ item.price }}/meter</span>
+                                        {% else %}
+                                            <span class="product-detail__option-price">+ Rs. {{ item.price }}</span>
+                                        {% endif %}
+                                    {% endif %}
+                                </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+
+                <div class="product-detail__total" id="packageTotal">
+                    <!-- <div class="product-detail__total-row">
+                        <span>Unit price:</span>
+                        <strong id="unitPrice">Rs. {{ product.price }}</strong>
+                    </div> -->
+                    <div class="product-detail__total-row product-detail__total-row--main">
+                        <span>Estimated Total (<span id="totalQty">1</span> item):</span>
+                        <strong id="totalPrice">Rs. {{ product.price }}</strong>
+                    </div>
+                </div>
+
+                <div class="product-detail__actions">
+                    <a href="{% url 'store:contact' %}" class="product-detail__btn product-detail__btn--primary">
+                        <i class="fa-solid fa-phone"></i> Contact to Order
+                    </a>
+                    <button type="button" class="product-detail__btn product-detail__btn--secondary" id="addToCartBtn" data-product-id="{{ product.id }}">
+                        <i class="fa-solid fa-cart-plus"></i> Add to Cart
+                    </button>
+                </div>
+
+                <input type="hidden" id="selectedDvr" value="">
+                <input type="hidden" id="selectedHdd" value="">
+                <input type="hidden" id="selectedSmps" value="">
+                <input type="hidden" id="selectedMonitor" value="">
+                <input type="hidden" id="selectedWire" value="">
+            </div>
+        </div>
+
+        {% if product.features.all or product.specs.all %}
+        <div class="product-detail__extras">
+            {% if product.features.all %}
+                <div class="product-detail__panel">
+                    <h3>Key Features</h3>
+                    <ul class="product-detail__features" id="featuresList">
+                        {% for feature in product.features.all %}
+                            <li class="feature-item{% if forloop.counter > 3 %} feature-item--hidden{% endif %}">
+                                <i class="fa-solid fa-circle-check"></i>
+                                <div>
+                                    <strong>{{ feature.title }}</strong>
+                                    {% if feature.description %}
+                                        <p>{{ feature.description }}</p>
+                                    {% endif %}
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    {% if product.features.all|length > 3 %}
+                    <button type="button" class="product-detail__view-more" id="featuresViewMore" onclick="toggleFeatures()">View More</button>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            {% if product.specs.all %}
+                <div class="product-detail__panel">
+                    <h3>Specifications</h3>
+                    <table class="product-detail__specs">
+                        <tbody id="specsList">
+                            {% for spec in product.specs.all %}
+                                <tr class="spec-item{% if forloop.counter > 5 %} spec-item--hidden{% endif %}">
+                                    <th>{{ spec.label }}</th>
+                                    <td>{{ spec.value }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% if product.specs.all|length > 5 %}
+                    <button type="button" class="product-detail__view-more" id="specsViewMore" onclick="toggleSpecs()">View More</button>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- CCTV Package Offers -->
+<section class="package-offers">
+    <div class="container">
+        <h2 class="package-offers__title">CCTV Package Deals</h2>
+        <div class="package-offers__grid">
+            <!-- Package 1 -->
+            <div class="package-card">
+                <div class="package-card__img">
+                    <img src="{% static 'instal.jpg' %}" alt="Basic Package">
+                </div>
+                <div class="package-card__content">
+                    <h3 class="package-card__title">Basic Package</h3>
+                    <ul class="package-card__features">
+                        <li><i class="fa-solid fa-video"></i> 4 Cameras</li>
+                        <li><i class="fa-solid fa-server"></i> 4-Channel DVR</li>
+                        <li><i class="fa-solid fa-hard-drive"></i> 1TB HDD</li>
+                        <li><i class="fa-solid fa-plug"></i> Power Supply</li>
+                    </ul>
+                    <div class="package-card__price">Rs. 24,999</div>
+                    <a href="{% url 'store:contact' %}" class="package-card__btn">Order Now</a>
+                </div>
+            </div>
+
+            <!-- Package 2 -->
+            <div class="package-card package-card--featured">
+                <div class="package-card__badge">Best Value</div>
+                <div class="package-card__img">
+                    <img src="{% static 'hero.png' %}" alt="Standard Package">
+                </div>
+                <div class="package-card__content">
+                    <h3 class="package-card__title">Standard Package</h3>
+                    <ul class="package-card__features">
+                        <li><i class="fa-solid fa-video"></i> 8 Cameras</li>
+                        <li><i class="fa-solid fa-server"></i> 8-Channel DVR</li>
+                        <li><i class="fa-solid fa-hard-drive"></i> 2TB HDD</li>
+                        <li><i class="fa-solid fa-plug"></i> Power Supply</li>
+                        <li><i class="fa-solid fa-desktop"></i> 19" Monitor</li>
+                    </ul>
+                    <div class="package-card__price">Rs. 44,999</div>
+                    <a href="{% url 'store:contact' %}" class="package-card__btn">Order Now</a>
+                </div>
+            </div>
+
+            <!-- Package 3 -->
+            <div class="package-card">
+                <div class="package-card__img">
+                    <img src="{% static 'instal.jpg' %}" alt="Premium Package">
+                </div>
+                <div class="package-card__content">
+                    <h3 class="package-card__title">Premium Package</h3>
+                    <ul class="package-card__features">
+                        <li><i class="fa-solid fa-video"></i> 16 Cameras</li>
+                        <li><i class="fa-solid fa-server"></i> 16-Channel NVR</li>
+                        <li><i class="fa-solid fa-hard-drive"></i> 4TB HDD</li>
+                        <li><i class="fa-solid fa-plug"></i> Power Supply</li>
+                        <li><i class="fa-solid fa-desktop"></i> 24" Monitor</li>
+                    </ul>
+                    <div class="package-card__price">Rs. 79,999</div>
+                    <a href="{% url 'store:contact' %}" class="package-card__btn">Order Now</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- Products Section -->
+<section class="products-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Featured Products</h2>
+            <a href="{% url 'store:product' %}" class="section-view-all">View all</a>
+        </div>
+
+        <div class="products-grid">
+            {% for product in products %}
+            <a href="{% url 'store:product_detail' product.id %}" class="product-card">
+                <div class="product-card__img">
+                    {% for image in product.images.all %}
+                        {% if image.is_feature %}
+                            <img src="{{ image.image.url }}" alt="{{ product.title }}">
+                        {% endif %}
+                    {% empty %}
+                        <div class="product-card__placeholder">
+                            <i class="fa-solid fa-camera"></i>
+                        </div>
+                    {% endfor %}
+                    {% if product.discount_percent %}
+                        <span class="product-card__badge product-card__badge--discount">-{{ product.discount_percent }}%</span>
+                    {% endif %}
+                    {% if product.stock == 0 %}
+                        <span class="product-card__badge product-card__badge--out product-card__badge--right">Out of Stock</span>
+                    {% elif product.stock <= 5 %}
+                        <span class="product-card__badge product-card__badge--right">Low Stock</span>
+                    {% endif %}
+                </div>
+                <div class="product-card__body">
+                    <h3 class="product-card__title">{{ product.title }}</h3>
+                    <div class="product-card__prices">
+                        {% if product.actual_price and product.actual_price > product.price %}
+                            <span class="product-card__actual-price">Rs. {{ product.actual_price }}</span>
+                            <span class="product-card__price">Rs. {{ product.price }}</span>
+                        {% else %}
+                            <span class="product-card__price">Rs. {{ product.price }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </a>
+            {% empty %}
+            <p class="products-empty">No products available yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const mainImage = document.getElementById('mainImage');
+    const previewLabel = document.getElementById('previewLabel');
+    const thumbs = document.querySelectorAll('.product-detail__thumb');
+    const basePrice = {{ product.price }};
+    const packageTotal = document.getElementById('packageTotal');
+    const totalPriceEl = document.getElementById('totalPrice');
+    const unitPriceEl = document.getElementById('unitPrice');
+    const totalQtyEl = document.getElementById('totalQty');
+    const quantityInput = document.getElementById('quantityInput');
+    const qtyMinus = document.getElementById('qtyMinus');
+    const qtyPlus = document.getElementById('qtyPlus');
+    const dvrHint = document.getElementById('dvrHint');
+    const maxStock = {% if product.stock > 0 %}{{ product.stock }}{% else %}1{% endif %};
+    const selectedOptions = { dvr: 0, hdd: 0, smps: 0, monitor: 0, wire: 0 };
+    const selectedImages = {};
+
+    const defaultImage = mainImage ? (mainImage.dataset.defaultSrc || mainImage.src) : '';
+    let currentImage = defaultImage;
+    let isPreviewing = false;
+
+    function setMainImage(src, preview = false) {
+        if (!mainImage || !src) return;
+        mainImage.src = src;
+        currentImage = src;
+        if (previewLabel) {
+            previewLabel.hidden = !preview;
+        }
+        isPreviewing = preview;
+    }
+
+    function getSelectedImage() {
+        const keys = ['dvr', 'hdd', 'smps', 'monitor', 'wire'];
+        for (let i = keys.length - 1; i >= 0; i--) {
+            if (selectedImages[keys[i]]) {
+                return selectedImages[keys[i]];
+            }
+        }
+        const activeThumb = document.querySelector('.product-detail__thumb.active');
+        if (activeThumb) {
+            return activeThumb.dataset.src;
+        }
+        return defaultImage;
+    }
+
+    thumbs.forEach(thumb => {
+        thumb.addEventListener('click', () => {
+            setMainImage(thumb.dataset.src, false);
+            thumbs.forEach(t => t.classList.remove('active'));
+            thumb.classList.add('active');
+        });
+    });
+
+    function getQuantity() {
+        return Math.max(1, parseInt(quantityInput.value, 10) || 1);
+    }
+
+    function setQuantity(value) {
+        const qty = Math.min(Math.max(1, value), maxStock);
+        quantityInput.value = qty;
+        updateDvrOptions(qty);
+        updateTotal();
+    }
+
+    function updateDvrOptions(qty) {
+        const dvrGroup = document.querySelector('[data-option-group="dvr"]');
+        if (!dvrGroup) return;
+
+        const dvrButtons = dvrGroup.querySelectorAll('.product-detail__option');
+        let recommended = null;
+
+        // Determine recommended channels based on quantity
+        let recommendedChannels;
+        if (qty <= 4) {
+            recommendedChannels = 4;
+        } else if (qty <= 8) {
+            recommendedChannels = 8;
+        } else if (qty <= 16) {
+            recommendedChannels = 16;
+        } else if (qty <= 32) {
+            recommendedChannels = 32;
+        } else {
+            recommendedChannels = 64;
+        }
+
+        dvrButtons.forEach(btn => {
+            const channels = parseInt(btn.dataset.channels, 10) || 0;
+            btn.classList.remove('product-detail__option--disabled', 'product-detail__option--recommended');
+
+            if (channels > 0) {
+                if (channels < qty) {
+                    // Disable DVRs that can't handle the quantity
+                    btn.classList.add('product-detail__option--disabled');
+                    if (btn.classList.contains('active')) {
+                        btn.classList.remove('active');
+                        selectedOptions.dvr = 0;
+                        delete selectedImages.dvr;
+                    }
+                } else if (channels === recommendedChannels) {
+                    // Recommend the DVR that matches the recommended channels
+                    recommended = btn;
+                }
+            }
+        });
+
+        if (recommended) {
+            recommended.classList.add('product-detail__option--recommended');
+            if (dvrHint) {
+                dvrHint.textContent = `(Recommended: ${recommended.querySelector('.product-detail__option-name').textContent} for ${qty} cameras)`;
+            }
+        } else if (dvrHint) {
+            dvrHint.textContent = qty > 1 ? `(Select a DVR for ${qty} cameras)` : '';
+        }
+
+        if (mainImage && !isPreviewing) {
+            setMainImage(getSelectedImage(), false);
+        }
+    }
+
+    if (qtyMinus && qtyPlus && quantityInput) {
+        qtyMinus.addEventListener('click', () => setQuantity(getQuantity() - 1));
+        qtyPlus.addEventListener('click', () => setQuantity(getQuantity() + 1));
+        quantityInput.addEventListener('change', () => setQuantity(getQuantity()));
+        quantityInput.addEventListener('input', () => setQuantity(getQuantity()));
+    }
+
+    document.querySelectorAll('.product-detail__option-group').forEach(group => {
+        const groupName = group.dataset.optionGroup;
+        group.querySelectorAll('.product-detail__option').forEach(option => {
+            option.addEventListener('mouseenter', () => {
+                if (option.classList.contains('product-detail__option--disabled')) return;
+                if (option.dataset.image) {
+                    setMainImage(option.dataset.image, true);
+                }
+            });
+
+            option.addEventListener('mouseleave', () => {
+                if (isPreviewing) {
+                    setMainImage(getSelectedImage(), false);
+                }
+            });
+
+            option.addEventListener('click', () => {
+                if (option.classList.contains('product-detail__option--disabled')) return;
+                group.querySelectorAll('.product-detail__option').forEach(o => o.classList.remove('active'));
+                option.classList.add('active');
+                selectedOptions[groupName] = parseFloat(option.dataset.price) || 0;
+                selectedImages[groupName] = option.dataset.image || '';
+
+                // Update hidden inputs for cart
+                if (groupName === 'dvr') {
+                    document.getElementById('selectedDvr').value = option.dataset.id || '';
+                } else if (groupName === 'hdd') {
+                    document.getElementById('selectedHdd').value = option.dataset.id || '';
+                } else if (groupName === 'smps') {
+                    document.getElementById('selectedSmps').value = option.dataset.id || '';
+                } else if (groupName === 'monitor') {
+                    document.getElementById('selectedMonitor').value = option.dataset.id || '';
+                } else if (groupName === 'wire') {
+                    document.getElementById('selectedWire').value = option.dataset.id || '';
+                }
+
+                if (option.dataset.image) {
+                    setMainImage(option.dataset.image, false);
+                } else {
+                    setMainImage(getSelectedImage(), false);
+                }
+                updateTotal();
+            });
+        });
+    });
+
+    function updateTotal() {
+        const qty = getQuantity();
+        const wireLengthPerCamera = 25; // meters per camera
+
+        // Calculate wire cost based on quantity
+        let wireCost = 0;
+        if (selectedOptions.wire) {
+            // Wire price is per unit, calculate based on total length needed
+            const totalWireLength = qty * wireLengthPerCamera;
+            // Assuming wire price is per meter, multiply by total length
+            wireCost = selectedOptions.wire * totalWireLength;
+        }
+
+        const addons = selectedOptions.dvr + selectedOptions.hdd + selectedOptions.smps
+            + selectedOptions.monitor + wireCost;
+        const unitTotal = basePrice + selectedOptions.dvr + selectedOptions.hdd + selectedOptions.smps
+            + selectedOptions.monitor + (selectedOptions.wire * wireLengthPerCamera);
+        const total = (basePrice * qty) + selectedOptions.dvr + selectedOptions.hdd + selectedOptions.smps
+            + selectedOptions.monitor + wireCost;
+
+        unitPriceEl.textContent = 'Rs. ' + unitTotal.toLocaleString();
+        totalPriceEl.textContent = 'Rs. ' + total.toLocaleString();
+        totalQtyEl.textContent = qty;
+    }
+
+    updateDvrOptions(1);
+    updateTotal();
+
+    // View More functionality
+    function toggleDescription() {
+        const descText = document.getElementById('descText');
+        const viewMoreBtn = document.getElementById('descViewMore');
+
+        if (descText.style.display === 'none' || descText.classList.contains('collapsed')) {
+            descText.style.display = 'block';
+            descText.classList.remove('collapsed');
+            viewMoreBtn.textContent = 'View Less';
+        } else {
+            descText.style.display = '-webkit-box';
+            descText.classList.add('collapsed');
+            viewMoreBtn.textContent = 'View More';
+        }
+    }
+
+    function toggleFeatures() {
+        const hiddenFeatures = document.querySelectorAll('.feature-item--hidden');
+        const viewMoreBtn = document.getElementById('featuresViewMore');
+
+        hiddenFeatures.forEach(item => {
+            item.classList.toggle('feature-item--hidden');
+        });
+
+        if (viewMoreBtn.textContent === 'View More') {
+            viewMoreBtn.textContent = 'View Less';
+        } else {
+            viewMoreBtn.textContent = 'View More';
+        }
+    }
+
+    function toggleSpecs() {
+        const hiddenSpecs = document.querySelectorAll('.spec-item--hidden');
+        const viewMoreBtn = document.getElementById('specsViewMore');
+
+        hiddenSpecs.forEach(item => {
+            item.classList.toggle('spec-item--hidden');
+        });
+
+        if (viewMoreBtn.textContent === 'View More') {
+            viewMoreBtn.textContent = 'View Less';
+        } else {
+            viewMoreBtn.textContent = 'View More';
+        }
+    }
+
+    // Initialize description as collapsed if too long
+    const descText = document.getElementById('descText');
+    if (descText && descText.textContent.length > 200) {
+        descText.style.display = '-webkit-box';
+        descText.style.webkitLineClamp = '3';
+        descText.style.webkitBoxOrient = 'vertical';
+        descText.style.overflow = 'hidden';
+        descText.classList.add('collapsed');
+    } else if (descText) {
+        const viewMoreBtn = document.getElementById('descViewMore');
+        if (viewMoreBtn) viewMoreBtn.style.display = 'none';
+    }
+
+    // Add to Cart functionality
+    const addToCartBtn = document.getElementById('addToCartBtn');
+    if (addToCartBtn) {
+        addToCartBtn.addEventListener('click', function() {
+            const productId = this.dataset.productId;
+            const quantity = getQuantity();
+            const dvr = document.getElementById('selectedDvr').value;
+            const hdd = document.getElementById('selectedHdd').value;
+            const smps = document.getElementById('selectedSmps').value;
+            const monitor = document.getElementById('selectedMonitor').value;
+            const wire = document.getElementById('selectedWire').value;
+
+            // Validate required options
+            if (!dvr) {
+                alert('Please select a DVR (Digital Video Recorder)');
+                return;
+            }
+            if (!hdd) {
+                alert('Please select an HDD (Hard Drive)');
+                return;
+            }
+            if (!smps) {
+                alert('Please select an SMPS (Power Supply)');
+                return;
+            }
+            if (!wire) {
+                alert('Please select a Wire option');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('product_id', productId);
+            formData.append('quantity', quantity);
+            if (dvr) formData.append('dvr', dvr);
+            if (hdd) formData.append('hdd', hdd);
+            if (smps) formData.append('smps', smps);
+            if (monitor) formData.append('monitor', monitor);
+            if (wire) formData.append('wire', wire);
+
+            fetch('/cart/add/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update cart badge
+                    const cartBadge = document.querySelector('.navbar-action__badge');
+                    if (cartBadge) {
+                        cartBadge.textContent = data.cart_count;
+                    }
+
+                    // Show success message
+                    alert('Item added to cart!');
+                } else {
+                    alert('Error adding to cart: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error adding to cart');
+            });
+        });
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,368 @@
+{% extends './navbar.html' %}
+{% load static %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="container">
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero__banner">
+            <img
+                class="hero__bg"
+                src="{% static 'cstation.jpg' %}"
+                alt="CCTV Security Cameras"
+            >
+            <div class="hero__content">
+                <span class="hero__label">Available Now</span>
+                <h1 class="hero__title">Smart CCTV Security Systems</h1>
+                <p class="hero__subtitle">Protect what matters most with professional-grade surveillance solutions.</p>
+                <a href="{% url 'store:product' %}" class="hero__cta">Shop Now — Starting from Rs. 4,999</a>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<!-- Categories Section -->
+<section class="categories-section">
+    <div class="container">
+        <div class="categories-header">
+            <h2>Shop by Category</h2>
+            <div class="categories-header__actions">
+                <button class="categories-nav-btn" id="catPrev" aria-label="Previous">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+                <button class="categories-nav-btn" id="catNext" aria-label="Next">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+                <a href="{% url 'store:product' %}" class="categories-view-all">View all</a>
+            </div>
+        </div>
+
+        <div class="categories-track-wrapper">
+            <div class="categories-track" id="categoriesTrack">
+                {% for category in navbar_categories %}
+                    <a href="{% url 'store:product_list' category.id %}" class="category-card">
+                        <div class="category-card__img">
+                            {% if category.image %}
+                                <img src="{{ category.image.url }}" alt="{{ category.name }}">
+                            {% else %}
+                                <i class="fa-solid fa-video category-card__icon"></i>
+                            {% endif %}
+                        </div>
+                        <span class="category-card__name">{{ category.name }}</span>
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Products Section -->
+<section class="products-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Featured Products</h2>
+            <a href="{% url 'store:product' %}" class="section-view-all">View all</a>
+        </div>
+
+        <div class="products-grid">
+            {% for product in products %}
+            <a href="{% url 'store:product_detail' product.id %}" class="product-card">
+                <div class="product-card__img">
+                    {% for image in product.images.all %}
+                        {% if image.is_feature %}
+                            <img src="{{ image.image.url }}" alt="{{ product.title }}">
+                        {% endif %}
+                    {% empty %}
+                        <div class="product-card__placeholder">
+                            <i class="fa-solid fa-camera"></i>
+                        </div>
+                    {% endfor %}
+                    {% if product.discount_percent %}
+                        <span class="product-card__badge product-card__badge--discount">-{{ product.discount_percent }}%</span>
+                    {% endif %}
+                </div>
+                <div class="product-card__body">
+                    <h3 class="product-card__title">{{ product.title }}</h3>
+                    <div class="product-card__prices">
+                        {% if product.actual_price and product.actual_price > product.price %}
+                            <span class="product-card__actual-price">Rs. {{ product.actual_price }}</span>
+                            <span class="product-card__price">Rs. {{ product.price }}</span>
+                        {% else %}
+                            <span class="product-card__price">Rs. {{ product.price }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </a>
+            {% empty %}
+            <p class="products-empty">No products available yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+<div class="container">
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero__banner">
+            <img
+                class="hero__bg"
+                src="https://images.unsplash.com/photo-1557597774-9d273605dfa9?w=1400&q=80"
+                alt="CCTV Security Cameras"
+            >
+            <div class="hero__content">
+                <span class="hero__label">Available Now</span>
+                <h1 class="hero__title">Smart CCTV Security Systems</h1>
+                <p class="hero__subtitle">Protect what matters most with professional-grade surveillance solutions.</p>
+                <a href="{% url 'store:product' %}" class="hero__cta">Shop Now — Starting from Rs. 4,999</a>
+            </div>
+        </div>
+    </section>
+
+</div>
+<section class="products-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>CCTV Cameras</h2>
+            <a href="{% url 'store:product' %}" class="section-view-all">View all</a>
+        </div>
+
+        <div class="products-grid">
+            {% for product in products %}
+            <a href="{% url 'store:product_detail' product.id %}" class="product-card">
+                <div class="product-card__img">
+                    {% for image in product.images.all %}
+                        {% if image.is_feature %}
+                            <img src="{{ image.image.url }}" alt="{{ product.title }}">
+                        {% endif %}
+                    {% empty %}
+                        <div class="product-card__placeholder">
+                            <i class="fa-solid fa-camera"></i>
+                        </div>
+                    {% endfor %}
+                    {% if product.discount_percent %}
+                        <span class="product-card__badge product-card__badge--discount">-{{ product.discount_percent }}%</span>
+                    {% endif %}
+                    {% if product.stock == 0 %}
+                        <span class="product-card__badge product-card__badge--out product-card__badge--right">Out of Stock</span>
+                    {% elif product.stock <= 5 %}
+                        <span class="product-card__badge product-card__badge--right">Low Stock</span>
+                    {% endif %}
+                </div>
+                <div class="product-card__body">
+                    <h3 class="product-card__title">{{ product.title }}</h3>
+                    <div class="product-card__prices">
+                        {% if product.actual_price and product.actual_price > product.price %}
+                            <span class="product-card__actual-price">Rs. {{ product.actual_price }}</span>
+                            <span class="product-card__price">Rs. {{ product.price }}</span>
+                        {% else %}
+                            <span class="product-card__price">Rs. {{ product.price }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </a>
+            {% empty %}
+            <p class="products-empty">No products available yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+<!-- Brands Section -->
+<section class="brands-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Shop by Brand</h2>
+            <div class="categories-header__actions">
+                <button class="categories-nav-btn" id="brandPrev" aria-label="Previous">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+                <button class="categories-nav-btn" id="brandNext" aria-label="Next">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="brands-track-wrapper">
+            <div class="brands-track" id="brandsTrack">
+                {% if brands %}
+                    {% for brand in brands %}
+                    {% if brand.website %}
+                    <a href="{{ brand.website }}" class="brand-card" target="_blank" rel="noopener">
+                    {% else %}
+                    <div class="brand-card">
+                    {% endif %}
+                        <div class="brand-card__logo">
+                            <img src="{{ brand.logo.url }}" alt="{{ brand.name }}">
+                        </div>
+                    {% if brand.website %}
+                    </a>
+                    {% else %}
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                {% else %}
+                    <div class="brand-card">
+                        <div class="brand-card__logo">
+                            <img src="{% static 'brands/hikvision.svg' %}" alt="Hikvision">
+                        </div>
+                    </div>
+                    <div class="brand-card">
+                        <div class="brand-card__logo">
+                            <img src="{% static 'brands/dahua.svg' %}" alt="Dahua">
+                        </div>
+                    </div>
+                    <div class="brand-card">
+                        <div class="brand-card__logo">
+                            <img src="{% static 'brands/tplink.svg' %}" alt="TP-Link">
+                        </div>
+                    </div>
+                    <div class="brand-card">
+                        <div class="brand-card__logo">
+                            <img src="{% static 'brands/dlink.svg' %}" alt="D-Link">
+                        </div>
+                    </div>
+                    <div class="brand-card">
+                        <div class="brand-card__logo">
+                            <img src="{% static 'brands/uniview.svg' %}" alt="Uniview">
+                        </div>
+                    </div>
+                    <div class="brand-card">
+                        <div class="brand-card__logo">
+                            <img src="{% static 'brands/zkteco.svg' %}" alt="ZKTeco">
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container">
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero__banner">
+            <img
+                class="hero__bg"
+                src="https://images.unsplash.com/photo-1557597774-9d273605dfa9?w=1400&q=80"
+                alt="CCTV Security Cameras"
+            >
+            <div class="hero__content">
+                <span class="hero__label">Available Now</span>
+                <h1 class="hero__title">Smart CCTV Security Systems</h1>
+                <p class="hero__subtitle">Protect what matters most with professional-grade surveillance solutions.</p>
+                <a href="{% url 'store:product' %}" class="hero__cta">Shop Now — Starting from Rs. 4,999</a>
+            </div>
+        </div>
+    </section>
+
+</div>
+<section class="products-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Featured Products</h2>
+            <a href="{% url 'store:product' %}" class="section-view-all">View all</a>
+        </div>
+
+        <div class="products-grid">
+            {% for product in products %}
+            <a href="{% url 'store:product_detail' product.id %}" class="product-card">
+                <div class="product-card__img">
+                    {% for image in product.images.all %}
+                        {% if image.is_feature %}
+                            <img src="{{ image.image.url }}" alt="{{ product.title }}">
+                        {% endif %}
+                    {% empty %}
+                        <div class="product-card__placeholder">
+                            <i class="fa-solid fa-camera"></i>
+                        </div>
+                    {% endfor %}
+                    {% if product.discount_percent %}
+                        <span class="product-card__badge product-card__badge--discount">-{{ product.discount_percent }}%</span>
+                    {% endif %}
+                </div>
+                <div class="product-card__body">
+                    <h3 class="product-card__title">{{ product.title }}</h3>
+                    <div class="product-card__prices">
+                        {% if product.actual_price and product.actual_price > product.price %}
+                            <span class="product-card__actual-price">Rs. {{ product.actual_price }}</span>
+                            <span class="product-card__price">Rs. {{ product.price }}</span>
+                        {% else %}
+                            <span class="product-card__price">Rs. {{ product.price }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </a>
+            {% empty %}
+            <p class="products-empty">No products available yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+<section class="products-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Featured Products</h2>
+            <a href="{% url 'store:product' %}" class="section-view-all">View all</a>
+        </div>
+
+        <div class="products-grid">
+            {% for product in products %}
+            <a href="{% url 'store:product_detail' product.id %}" class="product-card">
+                <div class="product-card__img">
+                    {% for image in product.images.all %}
+                        {% if image.is_feature %}
+                            <img src="{{ image.image.url }}" alt="{{ product.title }}">
+                        {% endif %}
+                    {% empty %}
+                        <div class="product-card__placeholder">
+                            <i class="fa-solid fa-camera"></i>
+                        </div>
+                    {% endfor %}
+                    {% if product.discount_percent %}
+                        <span class="product-card__badge product-card__badge--discount">-{{ product.discount_percent }}%</span>
+                    {% endif %}
+                </div>
+                <div class="product-card__body">
+                    <h3 class="product-card__title">{{ product.title }}</h3>
+                    <div class="product-card__prices">
+                        {% if product.actual_price and product.actual_price > product.price %}
+                            <span class="product-card__actual-price">Rs. {{ product.actual_price }}</span>
+                            <span class="product-card__price">Rs. {{ product.price }}</span>
+                        {% else %}
+                            <span class="product-card__price">Rs. {{ product.price }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </a>
+            {% empty %}
+            <p class="products-empty">No products available yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const track = document.getElementById('categoriesTrack');
+    document.getElementById('catPrev').addEventListener('click', () => {
+        track.scrollBy({ left: -300, behavior: 'smooth' });
+    });
+    document.getElementById('catNext').addEventListener('click', () => {
+        track.scrollBy({ left: 300, behavior: 'smooth' });
+    });
+
+    const brandsTrack = document.getElementById('brandsTrack');
+    document.getElementById('brandPrev').addEventListener('click', () => {
+        brandsTrack.scrollBy({ left: -300, behavior: 'smooth' });
+    });
+    document.getElementById('brandNext').addEventListener('click', () => {
+        brandsTrack.scrollBy({ left: 300, behavior: 'smooth' });
+    });
+</script>
+{% endblock %}

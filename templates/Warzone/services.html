@@ -1,0 +1,202 @@
+{% extends './navbar.html' %}
+{% load static %}
+
+{% block title %}Work{% endblock %}
+
+{% block content %}
+<style>
+    .services-section1 {
+      max-width: 1200px;
+      margin: 160px auto;
+      padding: 0 20px;
+      text-align: center;
+    }
+
+    .services-section1 h2 {
+      font-size: 36px;
+      margin-bottom: 40px;
+    }
+
+    .services-grid1 {
+      display: flex;
+      flex-direction: column;
+      gap: 80px;
+    }
+
+    .service-card1 {
+      display: flex;
+      flex-direction: row;
+      align-items: stretch; /* make image & text equal height */
+      gap: 0;
+      height:500px;
+      background: #fff;
+      box-shadow: 0 1px 25px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+    }
+
+    .service-image1 {
+      flex: 0 0 50%;
+      display: flex;
+    }
+
+    .service-image1 img {
+      width: 100%;
+      height: 100%;  /* image fills card */
+      object-fit: cover; /* crop instead of squish */
+    }
+
+    .service-card1:nth-child(even) {
+      flex-direction: row-reverse;
+    }
+
+    .service-text1 {
+      flex: 0 0 40%; /* match image width */
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start; /* change to center if you want vertical centering */
+    }
+
+    .service-text1 h3 {
+      font-size: 30px;
+      font-family: "babe", sans-serif;
+      margin-bottom: 15px;
+    }
+
+    .service-text1 p {
+      font-size: 20px;
+      font-family: "helvetica", sans-serif;
+      letter-spacing: 0.5px;
+      text-align: left;
+      color: #555;
+      line-height: 1.8; 
+      margin-bottom: 15px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .service-card1 {
+        flex-direction: column;
+      }
+      .service-image1,
+      .service-text1 {
+        flex: 0 0 100%;
+        width: 100%;
+      }
+      .service-image1 img {
+        height: auto; /* reset on mobile */
+      }
+      .service-text1 {
+        text-align: center;
+      }
+      .service-text1 p {
+        text-align: center;
+      }
+    }
+</style>
+
+<div class="services-section1">
+  <h2>Our CCTV Services</h2>
+  <div class="services-grid1">
+    
+    <!-- Service 1 -->
+    <div class="service-card1">
+      <div class="service-image1">
+        <img src="{% static 'ccs2.jpg' %}" alt="Service 1">
+      </div>
+      <div class="service-text1">
+        <h3>Site Survey & Consultation</h3>
+        <p>Every property is unique, which is why we begin with a detailed on-site survey. 
+        Our team inspects your premises and identifies blind spots.</p>
+        <p>We then analyze potential security risks and provide expert consultation on the 
+        best camera positions, system type, and features required to deliver maximum coverage 
+        and reliability.</p>
+      </div>
+    </div>
+
+    <!-- Service 2 -->
+    <div class="service-card1">
+      <div class="service-image1">
+        <img src="{% static 'ccs4.jpg' %}" alt="Service 2">
+      </div>
+      <div class="service-text1">
+        <h3>CCTV System Design & Planning</h3>
+        <p>We design security systems tailored to your needs, whether it’s for a small home, 
+        office, retail shop, or large industrial facility.</p>
+        <p>Our experts create a structured plan that includes the right choice of cameras 
+        (IP, analog, or hybrid), recording devices, storage solutions, and monitoring systems 
+        to ensure total protection and scalability for future expansion.</p>
+      </div>
+    </div>
+
+    <!-- Service 3 -->
+    <div class="service-card1">
+      <div class="service-image1">
+        <img src="{% static 'instal.jpg' %}" alt="Service 3">
+      </div>
+      <div class="service-text1">
+        <h3>CCTV Installation & Setup</h3>
+        <p>Our professional installation service includes mounting cameras, wiring, 
+        connecting DVR/NVR systems, and configuring both local and remote access.</p>
+        <p>We ensure neat cabling, optimal positioning for clear visuals, and provide training 
+        so you can manage your CCTV system easily from your smartphone, tablet, or PC.</p>
+      </div>
+    </div>
+
+    <!-- Service 4 -->
+    <div class="service-card1">
+      <div class="service-image1">
+        <img src="{% static 'ccs3.jpg' %}" alt="Service 4">
+      </div>
+      <div class="service-text1">
+        <h3>CCTV System Integration</h3>
+        <p>Security works best when systems are connected. We integrate your CCTV with additional 
+        solutions like burglar alarms, fire alarms, motion sensors, intercoms, and access control systems.</p>
+        <p>This ensures a smart and unified security network where all devices work together 
+        seamlessly for your safety.</p>
+      </div>
+    </div>
+    <!-- Service 7 -->
+<div class="service-card1">
+  <div class="service-image1">
+    <img src="{% static 's5.jpg' %}" alt="Web Design Service">
+  </div>
+  <div class="service-text1">
+    <h3>Web Design & Development</h3>
+    <p>We create modern, responsive websites tailored to your business needs. From landing pages to full-scale e-commerce platforms, our designs are visually appealing and user-friendly.</p>
+    <p>Our team ensures your website is optimized for speed, mobile devices, and SEO, giving your business a professional online presence that attracts and retains customers.</p>
+  </div>
+</div>
+
+
+    <!-- Service 5 -->
+    <div class="service-card1">
+      <div class="service-image1">
+        <img src="{% static 'ccs3.jpg' %}" alt="Service 5">
+      </div>
+      <div class="service-text1">
+        <h3>Networking & Storage Solutions</h3>
+        <p>Reliable storage is critical for CCTV. We set up secure storage options such as local 
+        DVR/NVR systems, high-capacity hard drives, and cloud backup for remote access.</p>
+        <p>Our networking solutions allow you to monitor multiple sites from one place, with smooth 
+        video streaming and easy retrieval of recorded footage whenever you need it.</p>
+      </div>
+    </div>
+
+    <!-- Service 6 -->
+    <div class="service-card1">
+      <div class="service-image1">
+        <img src="{% static 'ccs1.jpg' %}" alt="Service 6">
+      </div>
+      <div class="service-text1">
+        <h3>Annual Maintenance Contracts (AMC)</h3>
+        <p>We offer affordable annual maintenance contracts that keep your CCTV systems running 
+        without interruptions. This includes routine inspections, lens cleaning, and performance checks.</p>
+        <p>We also provide software updates and on-demand repairs. With AMC, you get peace of mind 
+        knowing your security system is always in top condition and ready to protect.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

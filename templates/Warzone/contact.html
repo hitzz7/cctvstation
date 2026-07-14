@@ -1,0 +1,339 @@
+{% extends './navbar.html' %}
+
+{% load static %}
+
+{% block title %}Contact Us - CCTV Station{% endblock %}
+
+{% block extra_css %}
+<style>
+.contact-page {
+    padding: 48px 0 64px;
+    background: var(--gray-bg);
+}
+
+.contact-page__title {
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--text-dark);
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+.contact-page__subtitle {
+    font-size: 16px;
+    color: var(--text-muted);
+    text-align: center;
+    margin-bottom: 48px;
+}
+
+.contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.contact-form-card {
+    background: var(--white);
+    padding: 32px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+
+.contact-form-card__title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+}
+
+.contact-form-card__subtitle {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #e8edf3;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    transition: border-color 0.2s;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--blue-mid);
+}
+
+.form-control::placeholder {
+    color: var(--text-muted);
+}
+
+textarea.form-control {
+    resize: vertical;
+    min-height: 120px;
+}
+
+.btn {
+    padding: 14px 32px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: background 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-primary {
+    background: var(--blue-mid);
+    color: var(--white);
+}
+
+.btn-primary:hover {
+    background: var(--blue-dark);
+}
+
+.contact-info-card {
+    background: var(--white);
+    padding: 32px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+
+.contact-info-card__title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 24px;
+}
+
+.contact-info-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.contact-info-item__icon {
+    width: 48px;
+    height: 48px;
+    background: var(--gray-bg);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--blue-mid);
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.contact-info-item__content h4 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 4px;
+}
+
+.contact-info-item__content p {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin: 0;
+    line-height: 1.5;
+}
+
+.contact-info-item__content a {
+    color: var(--blue-mid);
+    text-decoration: none;
+}
+
+.contact-info-item__content a:hover {
+    text-decoration: underline;
+}
+
+.map-container {
+    width: 100%;
+    height: 250px;
+    background: var(--gray-bg);
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 24px;
+}
+
+.map-placeholder {
+    text-align: center;
+    color: var(--text-muted);
+}
+
+.map-placeholder i {
+    font-size: 48px;
+    margin-bottom: 12px;
+}
+
+.social-links {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.social-link {
+    width: 40px;
+    height: 40px;
+    background: var(--gray-bg);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-dark);
+    font-size: 18px;
+    transition: background 0.2s, color 0.2s;
+}
+
+.social-link:hover {
+    background: var(--blue-mid);
+    color: var(--white);
+}
+
+@media (max-width: 768px) {
+    .contact-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="contact-page">
+    <div class="container">
+        <h1 class="contact-page__title">Contact Us</h1>
+        <p class="contact-page__subtitle">Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible.</p>
+
+        <div class="contact-grid">
+            <div class="contact-form-card">
+                <h2 class="contact-form-card__title">Send us a Message</h2>
+                <p class="contact-form-card__subtitle">Fill out the form below and we'll get back to you shortly.</p>
+
+                <form method="POST" action="{% url 'store:contactc' %}">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label for="name">Full Name *</label>
+                        <input type="text" id="name" name="name" class="form-control" placeholder="Enter your full name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email Address *</label>
+                        <input type="email" id="email" name="email" class="form-control" placeholder="Enter your email address" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" class="form-control" placeholder="Enter your phone number">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="subject">Subject *</label>
+                        <input type="text" id="subject" name="subject" class="form-control" placeholder="What is this regarding?" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="message">Message *</label>
+                        <textarea id="message" name="message" class="form-control" placeholder="Type your message here..." required></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa-solid fa-paper-plane"></i> Send Message
+                    </button>
+                </form>
+            </div>
+
+            <div class="contact-info-card">
+                <h2 class="contact-info-card__title">Contact Information</h2>
+
+                <div class="contact-info-item">
+                    <div class="contact-info-item__icon">
+                        <i class="fa-solid fa-location-dot"></i>
+                    </div>
+                    <div class="contact-info-item__content">
+                        <h4>Address</h4>
+                        <p>Putalisadak, Kathmandu, Nepal</p>
+                    </div>
+                </div>
+
+                <div class="contact-info-item">
+                    <div class="contact-info-item__icon">
+                        <i class="fa-solid fa-phone"></i>
+                    </div>
+                    <div class="contact-info-item__content">
+                        <h4>Phone</h4>
+                        <p><a href="tel:+9779800000000">+977 9800000000</a></p>
+                        <p><a href="tel:+9779800000001">+977 9800000001</a></p>
+                    </div>
+                </div>
+
+                <div class="contact-info-item">
+                    <div class="contact-info-item__icon">
+                        <i class="fa-solid fa-envelope"></i>
+                    </div>
+                    <div class="contact-info-item__content">
+                        <h4>Email</h4>
+                        <p><a href="mailto:info@cctvstation.com">info@cctvstation.com</a></p>
+                        <p><a href="mailto:sales@cctvstation.com">sales@cctvstation.com</a></p>
+                    </div>
+                </div>
+
+                <div class="contact-info-item">
+                    <div class="contact-info-item__icon">
+                        <i class="fa-solid fa-clock"></i>
+                    </div>
+                    <div class="contact-info-item__content">
+                        <h4>Business Hours</h4>
+                        <p>Sunday - Friday: 10:00 AM - 7:00 PM</p>
+                        <p>Saturday: Closed</p>
+                    </div>
+                </div>
+
+                <div class="map-container">
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3524.083965100787!2d85.33406839999999!3d27.703347599999996!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39eb1975f0f0ae89%3A0x72c5a5ec3ff88ad1!2sCCTV%20Station%20Nepal.!5e0!3m2!1sen!2snp!4v1688509919114!5m2!1sen!2snp" width="100%" height="300" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+                </div>
+
+                <div class="social-links">
+                    <a href="#" class="social-link" aria-label="Facebook">
+                        <i class="fa-brands fa-facebook-f"></i>
+                    </a>
+                    <a href="#" class="social-link" aria-label="Instagram">
+                        <i class="fa-brands fa-instagram"></i>
+                    </a>
+                    <a href="#" class="social-link" aria-label="Twitter">
+                        <i class="fa-brands fa-twitter"></i>
+                    </a>
+                    <a href="#" class="social-link" aria-label="YouTube">
+                        <i class="fa-brands fa-youtube"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

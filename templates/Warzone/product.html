@@ -1,0 +1,749 @@
+{% extends './navbar.html' %}
+
+{% load static %}
+
+{% block title %}Products{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Product page specific styles */
+.product-page-categories {
+    margin-top: 24px;
+    margin-bottom: 0;
+}
+
+.category-card--filter {
+    border: none;
+    background: none;
+    padding: 0;
+    font: inherit;
+    cursor: pointer;
+}
+
+.category-card--filter.active .category-card__img {
+    border: 2px solid var(--blue-mid);
+    box-shadow: 0 0 0 2px rgba(26, 79, 160, 0.15);
+}
+
+.category-card--filter.active .category-card__name {
+    color: var(--blue-mid);
+}
+
+/* Product page layout */
+.product-page {
+    padding-top: 32px;
+}
+
+.product-page__layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 32px;
+    align-items: start;
+}
+
+.product-sidebar {
+    background: var(--white);
+    border: 1px solid #e8edf3;
+    border-radius: var(--radius);
+    padding: 20px;
+    position: sticky;
+    top: 20px;
+}
+
+.product-sidebar__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #e8edf3;
+}
+
+.product-sidebar__header h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+.product-sidebar__clear {
+    background: none;
+    border: none;
+    color: var(--blue-mid);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+}
+
+.product-sidebar__clear:hover {
+    text-decoration: underline;
+}
+
+.product-sidebar__group {
+    margin-bottom: 20px;
+}
+
+.product-sidebar__label {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 10px;
+}
+
+.product-sidebar__input,
+.product-sidebar__select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #e8edf3;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.product-sidebar__input:focus,
+.product-sidebar__select:focus {
+    border-color: var(--blue-mid);
+}
+
+.product-sidebar__options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.product-sidebar__check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-muted);
+    cursor: pointer;
+}
+
+.product-sidebar__check input {
+    accent-color: var(--blue-mid);
+    cursor: pointer;
+}
+
+.product-sidebar__check span {
+    line-height: 1.3;
+}
+
+.product-sidebar__check--toggle {
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.product-page__main {
+    min-width: 0;
+}
+
+.product-page__count {
+    font-size: 14px;
+    color: var(--text-muted);
+}
+
+@media (max-width: 768px) {
+    .product-page__layout {
+        grid-template-columns: 1fr;
+    }
+
+    .product-sidebar {
+        position: static;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Categories Section -->
+
+<section class="categories-section product-page-categories">
+
+    <div class="container">
+
+        <div class="categories-header">
+
+            <h2>Shop by Category</h2>
+
+            <div class="categories-header__actions">
+
+                <button class="categories-nav-btn" id="catPrev" aria-label="Previous">
+
+                    <i class="fa-solid fa-chevron-left"></i>
+
+                </button>
+
+                <button class="categories-nav-btn" id="catNext" aria-label="Next">
+
+                    <i class="fa-solid fa-chevron-right"></i>
+
+                </button>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="categories-track-wrapper">
+
+            <div class="categories-track" id="categoriesTrack">
+
+                <button type="button" class="category-card category-card--filter active" data-category="all">
+
+                    <div class="category-card__img">
+
+                        <i class="fa-solid fa-border-all category-card__icon"></i>
+
+                    </div>
+
+                    <span class="category-card__name">All</span>
+
+                </button>
+
+                {% for category in categories %}
+
+                <button type="button" class="category-card category-card--filter" data-category="{{ category.id }}">
+
+                    <div class="category-card__img">
+
+                        {% if category.image %}
+
+                            <img src="{{ category.image.url }}" alt="{{ category.name }}">
+
+                        {% else %}
+
+                            <i class="fa-solid fa-video category-card__icon"></i>
+
+                        {% endif %}
+
+                    </div>
+
+                    <span class="category-card__name">{{ category.name }}</span>
+
+                </button>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<section class="products-section product-page">
+
+    <div class="container">
+
+        <div class="product-page__layout">
+
+            <aside class="product-sidebar">
+
+                <div class="product-sidebar__header">
+
+                    <h3>Filters</h3>
+
+                    <button type="button" class="product-sidebar__clear" id="clearFilters">Clear all</button>
+
+                </div>
+
+
+
+                <div class="product-sidebar__group">
+
+                    <label class="product-sidebar__label" for="searchFilter">Search</label>
+
+                    <input type="text" id="searchFilter" class="product-sidebar__input" placeholder="Search products..." value="{{ search_query }}">
+
+                </div>
+
+
+
+                {% if product_types %}
+
+                <div class="product-sidebar__group">
+
+                    <span class="product-sidebar__label">Product Type</span>
+
+                    <div class="product-sidebar__options">
+
+                        <label class="product-sidebar__check">
+
+                            <input type="radio" name="type" value="all" checked>
+
+                            <span>All Types</span>
+
+                        </label>
+
+                        {% for ptype in product_types %}
+
+                        <label class="product-sidebar__check">
+
+                            <input type="radio" name="type" value="{{ ptype.id }}">
+
+                            <span>{{ ptype.name }}</span>
+
+                        </label>
+
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+                {% endif %}
+
+
+
+                <div class="product-sidebar__group">
+
+                    <span class="product-sidebar__label">Price Range</span>
+
+                    <div class="product-sidebar__options">
+
+                        <label class="product-sidebar__check">
+
+                            <input type="radio" name="price" value="all" checked>
+
+                            <span>All Prices</span>
+
+                        </label>
+
+                        <label class="product-sidebar__check">
+
+                            <input type="radio" name="price" value="0-5000">
+
+                            <span>Under Rs. 5,000</span>
+
+                        </label>
+
+                        <label class="product-sidebar__check">
+
+                            <input type="radio" name="price" value="5000-15000">
+
+                            <span>Rs. 5,000 – 15,000</span>
+
+                        </label>
+
+                        <label class="product-sidebar__check">
+
+                            <input type="radio" name="price" value="15000-30000">
+
+                            <span>Rs. 15,000 – 30,000</span>
+
+                        </label>
+
+                        <label class="product-sidebar__check">
+
+                            <input type="radio" name="price" value="30000+">
+
+                            <span>Above Rs. 30,000</span>
+
+                        </label>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="product-sidebar__group">
+
+                    <label class="product-sidebar__label" for="sortFilter">Sort By</label>
+
+                    <select id="sortFilter" class="product-sidebar__select">
+
+                        <option value="default">Default</option>
+
+                        <option value="price-asc">Price: Low to High</option>
+
+                        <option value="price-desc">Price: High to Low</option>
+
+                        <option value="name-asc">Name: A to Z</option>
+
+                        <option value="name-desc">Name: Z to A</option>
+
+                    </select>
+
+                </div>
+
+
+
+                <div class="product-sidebar__group">
+
+                    <label class="product-sidebar__check product-sidebar__check--toggle">
+
+                        <input type="checkbox" id="inStockOnly">
+
+                        <span>In Stock Only</span>
+
+                    </label>
+
+                </div>
+
+            </aside>
+
+
+
+            <div class="product-page__main">
+
+                <div class="section-header">
+
+                    <h2>All Products</h2>
+
+                    <span class="product-page__count"><span id="visibleCount">{{ products|length }}</span> of {{ products|length }} items</span>
+
+                </div>
+
+
+
+                <div class="products-grid" id="productsGrid">
+
+                    {% for product in products %}
+
+                    <a href="{% url 'store:product_detail' product.id %}"
+
+                       class="product-card"
+
+                       data-category="{{ product.category.id }}"
+
+                       data-type="{% if product.product_type %}{{ product.product_type.id }}{% else %}none{% endif %}"
+
+                       data-price="{{ product.price }}"
+
+                       data-title="{{ product.title|lower }}"
+
+                       data-stock="{{ product.stock }}">
+
+                        <div class="product-card__img">
+
+                            {% for image in product.images.all %}
+
+                                {% if image.is_feature %}
+
+                                    <img src="{{ image.image.url }}" alt="{{ product.title }}">
+
+                                {% endif %}
+
+                            {% empty %}
+
+                                <div class="product-card__placeholder">
+
+                                    <i class="fa-solid fa-camera"></i>
+
+                                </div>
+
+                            {% endfor %}
+
+                            {% if product.discount_percent %}
+
+                                <span class="product-card__badge product-card__badge--discount">-{{ product.discount_percent }}%</span>
+
+                            {% endif %}
+
+                            {% if product.stock == 0 %}
+
+                                <span class="product-card__badge product-card__badge--out product-card__badge--right">Out of Stock</span>
+
+                            {% elif product.stock <= 5 %}
+
+                                <span class="product-card__badge product-card__badge--right">Low Stock</span>
+
+                            {% endif %}
+
+                        </div>
+
+                        <div class="product-card__body">
+
+                            <h3 class="product-card__title">{{ product.title }}</h3>
+
+                            <div class="product-card__prices">
+
+                                {% if product.actual_price and product.actual_price > product.price %}
+
+                                    <span class="product-card__actual-price">Rs. {{ product.actual_price }}</span>
+
+                                    <span class="product-card__price">Rs. {{ product.price }}</span>
+
+                                {% else %}
+
+                                    <span class="product-card__price">Rs. {{ product.price }}</span>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    </a>
+
+                    {% empty %}
+
+                    <p class="products-empty">No products available yet.</p>
+
+                    {% endfor %}
+
+                </div>
+
+
+
+                <p class="products-empty" id="noResults" hidden>No products match your filters.</p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}
+
+
+
+{% block extra_js %}
+
+<script>
+
+    const productsGrid = document.getElementById('productsGrid');
+
+    const productCards = Array.from(document.querySelectorAll('.product-card[data-category]'));
+
+    const visibleCountEl = document.getElementById('visibleCount');
+
+    const noResultsEl = document.getElementById('noResults');
+
+    const searchFilter = document.getElementById('searchFilter');
+
+    const sortFilter = document.getElementById('sortFilter');
+
+    const inStockOnly = document.getElementById('inStockOnly');
+
+    const clearFiltersBtn = document.getElementById('clearFilters');
+
+    const totalCount = productCards.length;
+
+    const categoryFilterBtns = document.querySelectorAll('.category-card--filter');
+
+    let selectedCategory = 'all';
+
+
+
+    function getSelected(name) {
+
+        const el = document.querySelector(`input[name="${name}"]:checked`);
+
+        return el ? el.value : 'all';
+
+    }
+
+
+
+    function matchesPrice(price, range) {
+
+        const p = parseFloat(price);
+
+        if (range === 'all') return true;
+
+        if (range === '0-5000') return p <= 5000;
+
+        if (range === '5000-15000') return p > 5000 && p <= 15000;
+
+        if (range === '15000-30000') return p > 15000 && p <= 30000;
+
+        if (range === '30000+') return p > 30000;
+
+        return true;
+
+    }
+
+
+
+    function applyFilters() {
+
+        const search = searchFilter.value.trim().toLowerCase();
+
+        const category = selectedCategory;
+
+        const type = getSelected('type');
+
+        const price = getSelected('price');
+
+        const stockOnly = inStockOnly.checked;
+
+        let visible = 0;
+
+
+
+        productCards.forEach(card => {
+
+            const matchSearch = !search || card.dataset.title.includes(search);
+
+            const matchCategory = category === 'all' || card.dataset.category === category;
+
+            const matchType = type === 'all' || card.dataset.type === type;
+
+            const matchPrice = matchesPrice(card.dataset.price, price);
+
+            const matchStock = !stockOnly || parseInt(card.dataset.stock, 10) > 0;
+
+            const show = matchSearch && matchCategory && matchType && matchPrice && matchStock;
+
+            card.style.display = show ? '' : 'none';
+
+            if (show) visible++;
+
+        });
+
+
+
+        visibleCountEl.textContent = visible;
+
+        noResultsEl.hidden = visible > 0 || totalCount === 0;
+
+        productsGrid.style.display = visible === 0 && totalCount > 0 ? 'none' : '';
+
+    }
+
+
+
+    function sortProducts() {
+
+        const sort = sortFilter.value;
+
+        if (sort === 'default') return;
+
+
+
+        const sorted = [...productCards].sort((a, b) => {
+
+            if (sort === 'price-asc') return parseFloat(a.dataset.price) - parseFloat(b.dataset.price);
+
+            if (sort === 'price-desc') return parseFloat(b.dataset.price) - parseFloat(a.dataset.price);
+
+            if (sort === 'name-asc') return a.dataset.title.localeCompare(b.dataset.title);
+
+            if (sort === 'name-desc') return b.dataset.title.localeCompare(a.dataset.title);
+
+            return 0;
+
+        });
+
+
+
+        sorted.forEach(card => productsGrid.appendChild(card));
+
+    }
+
+
+
+    document.querySelectorAll('input[name="type"], input[name="price"]').forEach(input => {
+
+        input.addEventListener('change', applyFilters);
+
+    });
+
+
+
+    categoryFilterBtns.forEach(btn => {
+
+        btn.addEventListener('click', () => {
+
+            categoryFilterBtns.forEach(b => b.classList.remove('active'));
+
+            btn.classList.add('active');
+
+            selectedCategory = btn.dataset.category;
+
+            applyFilters();
+
+        });
+
+    });
+
+
+
+    const catTrack = document.getElementById('categoriesTrack');
+
+    document.getElementById('catPrev').addEventListener('click', () => {
+
+        catTrack.scrollBy({ left: -300, behavior: 'smooth' });
+
+    });
+
+    document.getElementById('catNext').addEventListener('click', () => {
+
+        catTrack.scrollBy({ left: 300, behavior: 'smooth' });
+
+    });
+
+
+
+    searchFilter.addEventListener('input', applyFilters);
+
+    inStockOnly.addEventListener('change', applyFilters);
+
+    sortFilter.addEventListener('change', () => { sortProducts(); applyFilters(); });
+
+
+
+    clearFiltersBtn.addEventListener('click', () => {
+
+        searchFilter.value = '';
+
+        categoryFilterBtns.forEach(b => b.classList.remove('active'));
+
+        document.querySelector('.category-card--filter[data-category="all"]').classList.add('active');
+
+        selectedCategory = 'all';
+
+        document.querySelector('input[name="type"][value="all"]').checked = true;
+
+        document.querySelector('input[name="price"][value="all"]').checked = true;
+
+        sortFilter.value = 'default';
+
+        inStockOnly.checked = false;
+
+        applyFilters();
+
+    });
+
+
+
+    const urlParams = new URLSearchParams(window.location.search);
+
+    const catParam = urlParams.get('category');
+
+    if (catParam) {
+
+        const catBtn = document.querySelector(`.category-card--filter[data-category="${catParam}"]`);
+
+        if (catBtn) {
+
+            categoryFilterBtns.forEach(b => b.classList.remove('active'));
+
+            catBtn.classList.add('active');
+
+            selectedCategory = catParam;
+
+        }
+
+    }
+
+
+
+    applyFilters();
+
+</script>
+
+{% endblock %}
+

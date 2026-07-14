@@ -1,0 +1,400 @@
+{% extends './navbar.html' %}
+
+{% block title %}Checkout - CCTV Station{% endblock %}
+
+{% block content %}
+<div class="checkout-page">
+    <div class="container">
+        <h1 class="checkout-page__title">Checkout</h1>
+
+        <div class="checkout-grid">
+            <div class="checkout-form">
+                <form method="POST" action="{% url 'store:checkout' %}">
+                    {% csrf_token %}
+
+                    <div class="checkout-section">
+                        <h2 class="checkout-section__title">Contact Information</h2>
+
+                        <div class="form-group">
+                            <label for="name">Full Name *</label>
+                            <input type="text" id="name" name="name" class="form-control" value="{{ request.user.get_full_name|default:'' }}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">Email Address *</label>
+                            <input type="email" id="email" name="email" class="form-control" value="{{ request.user.email|default:'' }}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="phone">Phone Number *</label>
+                            <input type="tel" id="phone" name="phone" class="form-control" value="{{ profile.phone|default:'' }}" required>
+                        </div>
+                    </div>
+
+                    <div class="checkout-section">
+                        <h2 class="checkout-section__title">Delivery Address</h2>
+
+                        <div class="form-group">
+                            <label for="city">City *</label>
+                            <input type="text" id="city" name="city" class="form-control" value="{{ profile.city|default:'' }}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="address">Address *</label>
+                            <textarea id="address" name="address" class="form-control" rows="3" required>{{ profile.pickup_location|default:'' }}</textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="landmark">Landmark</label>
+                            <input type="text" id="landmark" name="landmark" class="form-control" placeholder="Nearby landmark (optional)">
+                        </div>
+                    </div>
+
+                    <div class="checkout-section">
+                        <h2 class="checkout-section__title">Additional Notes</h2>
+
+                        <div class="form-group">
+                            <label for="notes">Order Notes (Optional)</label>
+                            <textarea id="notes" name="notes" class="form-control" rows="3" placeholder="Any special instructions for your order..."></textarea>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-full">
+                        <i class="fa-solid fa-check"></i> Place Order
+                    </button>
+                </form>
+            </div>
+
+            <div class="checkout-summary">
+                <div class="checkout-summary__card">
+                    <h2 class="checkout-summary__title">Order Summary</h2>
+
+                    <div class="checkout-items">
+                        {% for item in cart_items %}
+                        <div class="checkout-item">
+                            <div class="checkout-item__image">
+                                {% if item.product.images.first %}
+                                    <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.title }}">
+                                {% else %}
+                                    <div class="checkout-item__placeholder">
+                                        <i class="fa-solid fa-camera"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="checkout-item__details">
+                                <h3 class="checkout-item__title">{{ item.product.title }}</h3>
+                                <p class="checkout-item__quantity">Qty: {{ item.quantity }}</p>
+
+                                {% if item.dvr or item.hdd or item.smps or item.monitor or item.wire %}
+                                <div class="checkout-item__options">
+                                    {% if item.dvr %}
+                                        <span class="checkout-item__option">DVR: {{ item.dvr.name }}</span>
+                                    {% endif %}
+                                    {% if item.hdd %}
+                                        <span class="checkout-item__option">HDD: {{ item.hdd.name }}</span>
+                                    {% endif %}
+                                    {% if item.smps %}
+                                        <span class="checkout-item__option">SMPS: {{ item.smps.name }}</span>
+                                    {% endif %}
+                                    {% if item.monitor %}
+                                        <span class="checkout-item__option">Monitor: {{ item.monitor.name }}</span>
+                                    {% endif %}
+                                    {% if item.wire %}
+                                        <span class="checkout-item__option">Wire: {{ item.wire.name }}</span>
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="checkout-item__price">
+                                Rs. {{ item.get_total|floatformat:0 }}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="checkout-summary__row">
+                        <span>Subtotal ({{ cart.get_total_quantity }} items)</span>
+                        <strong>Rs. {{ cart.get_total|floatformat:0 }}</strong>
+                    </div>
+
+                    <div class="checkout-summary__row">
+                        <span>Pickup Method</span>
+                        <strong>Store Pickup</strong>
+                    </div>
+
+                    <div class="checkout-summary__row checkout-summary__row--total">
+                        <span>Total</span>
+                        <strong>Rs. {{ cart.get_total|floatformat:0 }}</strong>
+                    </div>
+
+                    <div class="checkout-info">
+                        <i class="fa-solid fa-info-circle"></i>
+                        <p>You will be contacted to confirm your order before pickup.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.checkout-page {
+    padding: 48px 0;
+    background: var(--gray-bg);
+    min-height: calc(100vh - 200px);
+}
+
+.checkout-page__title {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text-dark);
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.checkout-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.checkout-form {
+    background: var(--white);
+    padding: 32px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+
+.checkout-section {
+    margin-bottom: 32px;
+}
+
+.checkout-section__title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #e8edf3;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #e8edf3;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    transition: border-color 0.2s;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--blue-mid);
+}
+
+.form-control::placeholder {
+    color: var(--text-muted);
+}
+
+.checkout-summary {
+    position: sticky;
+    top: 20px;
+}
+
+.checkout-summary__card {
+    background: var(--white);
+    padding: 24px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+
+.checkout-summary__title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #e8edf3;
+}
+
+.checkout-items {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 24px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.checkout-item {
+    display: grid;
+    grid-template-columns: 60px 1fr auto;
+    gap: 12px;
+    align-items: center;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.checkout-item:last-child {
+    border-bottom: none;
+}
+
+.checkout-item__image {
+    width: 60px;
+    height: 60px;
+    border-radius: 6px;
+    overflow: hidden;
+    background: var(--gray-bg);
+}
+
+.checkout-item__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.checkout-item__placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: 20px;
+}
+
+.checkout-item__details {
+    flex: 1;
+}
+
+.checkout-item__title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 4px;
+}
+
+.checkout-item__quantity {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+}
+
+.checkout-item__options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.checkout-item__option {
+    font-size: 11px;
+    padding: 2px 6px;
+    background: var(--gray-bg);
+    border-radius: 4px;
+    color: var(--text-muted);
+}
+
+.checkout-item__price {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--blue-mid);
+}
+
+.checkout-summary__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #e8edf3;
+}
+
+.checkout-summary__row--total {
+    border-bottom: none;
+    padding-top: 16px;
+    margin-top: 8px;
+    font-size: 18px;
+}
+
+.checkout-summary__row strong {
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+.checkout-info {
+    display: flex;
+    gap: 12px;
+    padding: 16px;
+    background: #f0f7ff;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+.checkout-info i {
+    color: var(--blue-mid);
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.checkout-info p {
+    font-size: 13px;
+    color: var(--text-dark);
+    margin: 0;
+}
+
+.btn {
+    padding: 14px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-full {
+    width: 100%;
+}
+
+.btn-primary {
+    background: var(--blue-mid);
+    color: var(--white);
+}
+
+.btn-primary:hover {
+    background: var(--blue-dark);
+}
+
+@media (max-width: 768px) {
+    .checkout-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .checkout-summary {
+        position: static;
+    }
+}
+</style>
+{% endblock %}
